@@ -1,0 +1,35 @@
+# Variáveis de ambiente e chaves
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+!.env.example
+
+# Credenciais do Firebase / Google Cloud
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+*firebase-adminsdk*.json
+serviceAccountKey.json
+google-services.json
+
+# Dependências e builds
+node_modules/
+.next/
+out/
+build/
+dist/
+.vercel/
+
+# Logs e arquivos de sistema/IDE
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Arquivos gerados pelo TypeScript / Next.js
+*.tsbuildinfo
+next-env.d.ts

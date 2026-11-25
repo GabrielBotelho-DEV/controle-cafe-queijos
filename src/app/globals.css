@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tema neutro (login) */
+:root {
+  --accent: 51 65 85;
+  --accent-dark: 30 41 59;
+  --accent-alt: 71 85 105;
+  --accent-soft: 241 245 249;
+}
+
+/* Operação Café: marrom-café #4A2C2A + âmbar #B45309 */
+[data-workspace="cafe"] {
+  --accent: 74 44 42;
+  --accent-dark: 56 33 31;
+  --accent-alt: 180 83 9;
+  --accent-soft: 251 243 226;
+}
+
+/* Operação Queijos: vinho/terracota #7F1D1D + dourado #D97706 */
+[data-workspace="queijos"] {
+  --accent: 127 29 29;
+  --accent-dark: 103 22 22;
+  --accent-alt: 217 119 6;
+  --accent-soft: 254 243 199;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 antialiased;
+}
+
+::selection {
+  background-color: rgb(var(--accent) / 0.15);
+}
+
+/* Campos de data e lists ficam legíveis no tema escuro do sistema */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.55;
+}
+
+/* Scrollbar discreta para tabelas largas */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-slate-300;
+}

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   AlertTriangle,
   Boxes,
+  Check,
   CircleDollarSign,
   Clock3,
   Coins,
@@ -27,18 +28,38 @@ import {
   thClass,
   useToast,
 } from "@/components/ui";
+import { CotacaoCard } from "@/components/cotacao-card";
 import { downloadCsv } from "@/lib/csv";
-import { formatBRL } from "@/lib/format";
+import { formatBRL, formatDate, round2 } from "@/lib/format";
 import { useCafe } from "@/modules/cafe/cafe-context";
-import { estoquePorQualidade, resumoCafe, saldoPorLote } from "@/modules/cafe/logic";
+import {
+  estoquePorQualidade,
+  resumoCafe,
+  saldoPorLote,
+  vendasEmAbertoCafe,
+} from "@/modules/cafe/logic";
 
 export default function PainelCafePage() {
-  const { producao, vendas, loading, error, carregarDadosTeste } = useCafe();
+  const { producao, vendas, loading, error, darBaixa, carregarDadosTeste } = useCafe();
   const { notify, toastElement } = useToast();
 
   const resumo = useMemo(() => resumoCafe(producao, vendas), [producao, vendas]);
   const qualidade = useMemo(() => estoquePorQualidade(producao, vendas), [producao, vendas]);
   const lotes = useMemo(() => saldoPorLote(producao, vendas), [producao, vendas]);
+  const pendentes = useMemo(() => vendasEmAbertoCafe(vendas), [vendas]);
+  const totalPendente = useMemo(
+    () => round2(pendentes.reduce((sum, item) => sum + item.total, 0)),
+    [pendentes],
+  );
+
+  async function confirmarBaixa(id: string) {
+    try {
+      await darBaixa(id);
+      notify("Baixa dada: venda marcada como Paga.");
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Erro ao dar baixa.", "error");
+    }
+  }
 
   function exportarLotes() {
     downloadCsv(
@@ -93,6 +114,10 @@ export default function PainelCafePage() {
         }
       />
 
+      <div className="mb-5">
+        <CotacaoCard tipo="cafe" />
+      </div>
+
       <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Unidades produzidas" value={String(resumo.unidadesProduzidas)} icon={<Boxes size={18} />} />
         <StatCard label="Unidades vendidas" value={String(resumo.unidadesVendidas)} icon={<ShoppingBag size={18} />} />
@@ -103,6 +128,68 @@ export default function PainelCafePage() {
         <StatCard label="Valor pendente" value={formatBRL(resumo.valorPendente)} icon={<Clock3 size={18} />} />
         <StatCard label="Custo total registrado" value={formatBRL(resumo.custoTotalRegistrado)} icon={<Coins size={18} />} />
       </div>
+
+      <Card className="mb-5">
+        <SectionTitle
+          title="Vendas em aberto — Café"
+          subtitle={`${pendentes.length} registro(s) · ${formatBRL(totalPendente)} em Fiado/Pendente`}
+        />
+        {error ? (
+          <ErrorState message={error} />
+        ) : loading ? (
+          <LoadingState />
+        ) : pendentes.length === 0 ? (
+          <EmptyState message="Nenhuma venda pendente ou fiada." />
+        ) : (
+          <TableContainer>
+            <table className="w-full min-w-[1000px] border-collapse">
+              <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
+                <tr>
+                  <th className={thClass}>Data</th>
+                  <th className={thClass}>Cliente</th>
+                  <th className={thClass}>Lote</th>
+                  <th className={thClass}>Qualidade</th>
+                  <th className={thClass}>Peso</th>
+                  <th className={thClass}>Qtd.</th>
+                  <th className={thClass}>Total</th>
+                  <th className={thClass}>Status</th>
+                  <th className={thClass}>Observações</th>
+                  <th className={thClass}>Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
+                {pendentes.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
+                    <td className={tdClass}>{formatDate(item.data)}</td>
+                    <td className={`${tdClass} font-medium`}>{item.cliente}</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{item.lote}</td>
+                    <td className={tdClass}><Badge tone="accent">{item.qualidade}</Badge></td>
+                    <td className={tdClass}>{item.peso} g</td>
+                    <td className={tdClass}>{item.quantidade} un.</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{formatBRL(item.total)}</td>
+                    <td className={tdClass}>
+                      <Badge tone={item.status === "Fiado" ? "warning" : "danger"}>{item.status}</Badge>
+                    </td>
+                    <td className={`${tdClass} max-w-[200px] truncate`} title={item.observacoes}>
+                      {item.observacoes || "—"}
+                    </td>
+                    <td className={tdClass}>
+                      <button
+                        type="button"
+                        onClick={() => void confirmarBaixa(item.id)}
+                        className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
+                        title="Dar baixa como paga"
+                      >
+                        <Check size={14} /> Baixa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableContainer>
+        )}
+      </Card>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Card>
@@ -122,7 +209,7 @@ export default function PainelCafePage() {
           ) : (
             <TableContainer>
               <table className="w-full min-w-[520px] border-collapse">
-                <thead className="bg-slate-50/80">
+                <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
                   <tr>
                     <th className={thClass}>Qualidade</th>
                     <th className={thClass}>Produzido (un.)</th>
@@ -130,10 +217,10 @@ export default function PainelCafePage() {
                     <th className={thClass}>Disponível (un.)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                   {qualidade.map((item) => (
-                    <tr key={item.qualidade} className="hover:bg-slate-50/60">
-                      <td className={`${tdClass} font-semibold text-slate-800`}>{item.qualidade}</td>
+                    <tr key={item.qualidade} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
+                      <td className={`${tdClass} font-semibold text-slate-800 dark:text-neutral-200`}>{item.qualidade}</td>
                       <td className={tdClass}>{item.produzido}</td>
                       <td className={tdClass}>{item.vendido}</td>
                       <td className={tdClass}>
@@ -166,7 +253,7 @@ export default function PainelCafePage() {
           ) : (
             <TableContainer>
               <table className="w-full min-w-[620px] border-collapse">
-                <thead className="bg-slate-50/80">
+                <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
                   <tr>
                     <th className={thClass}>Lote</th>
                     <th className={thClass}>Qualidade</th>
@@ -176,10 +263,10 @@ export default function PainelCafePage() {
                     <th className={thClass}>Saldo</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                   {lotes.map((item) => (
-                    <tr key={item.chave} className="hover:bg-slate-50/60">
-                      <td className={`${tdClass} font-semibold text-slate-900`}>{item.lote}</td>
+                    <tr key={item.chave} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
+                      <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{item.lote}</td>
                       <td className={tdClass}><Badge tone="accent">{item.qualidade}</Badge></td>
                       <td className={tdClass}>{item.peso} g</td>
                       <td className={tdClass}>{item.produzido}</td>
@@ -187,7 +274,7 @@ export default function PainelCafePage() {
                       <td className={tdClass}>
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-semibold ${
-                            item.saldo <= 0 ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"
+                            item.saldo <= 0 ? "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300" : "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300"
                           }`}
                         >
                           {item.saldo <= 0 && <AlertTriangle size={13} />}

@@ -302,9 +302,9 @@ export function VendasCafeView() {
               <option value="Outro">Outro</option>
             </Select>
           </Field>
-          <div className="flex flex-col justify-end gap-2 rounded-lg bg-slate-50 px-4 py-2.5">
+          <div className="flex flex-col justify-end gap-2 rounded-lg bg-slate-50 dark:bg-neutral-950 px-4 py-2.5">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total da venda</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Total da venda</p>
               <p className="text-lg font-bold text-accent-dark">{formatBRL(totalCalculado)}</p>
             </div>
             <Button type="submit" disabled={salvando} className="w-full">
@@ -321,7 +321,7 @@ export function VendasCafeView() {
             />
           </Field>
           {excedeSaldo && (
-            <p className="flex items-center gap-2 rounded-lg bg-amber-50 px-4 py-2 text-xs font-medium text-amber-800 sm:col-span-2 xl:col-span-6">
+            <p className="flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 px-4 py-2 text-xs font-medium text-amber-800 dark:text-amber-200 sm:col-span-2 xl:col-span-6">
               <AlertTriangle size={15} /> Saldo disponível deste lote: {saldoDisponivel} un. A quantidade informada é maior que o saldo.
             </p>
           )}
@@ -330,7 +330,7 @@ export function VendasCafeView() {
 
       <Card>
         <SectionTitle title="Vendas registradas" subtitle={`${filtradas.length} de ${vendas.length} registro(s)`} />
-        <div className="grid grid-cols-1 gap-3 border-b border-slate-100 px-4 py-4 sm:grid-cols-2 xl:grid-cols-4 sm:px-5">
+        <div className="grid grid-cols-1 gap-3 border-b border-slate-100 dark:border-neutral-800 px-4 py-4 sm:grid-cols-2 xl:grid-cols-4 sm:px-5">
           <Field label="Lote">
             <Input placeholder="Buscar lote..." value={filtros.lote} onChange={(e) => setFiltros({ ...filtros, lote: e.target.value })} />
           </Field>
@@ -360,8 +360,8 @@ export function VendasCafeView() {
             <Input type="date" value={filtros.fim} onChange={(e) => setFiltros({ ...filtros, fim: e.target.value })} />
           </Field>
           <div className="flex items-center justify-between gap-2 sm:col-span-2 xl:col-span-4">
-            <span className="text-xs text-slate-500">
-              Total filtrado: <strong className="text-slate-800">{formatBRL(filtradas.reduce((sum, item) => sum + item.total, 0))}</strong>
+            <span className="text-xs text-slate-500 dark:text-neutral-400">
+              Total filtrado: <strong className="text-slate-800 dark:text-neutral-200">{formatBRL(filtradas.reduce((sum, item) => sum + item.total, 0))}</strong>
             </span>
             <Button
               variant="ghost"
@@ -382,7 +382,7 @@ export function VendasCafeView() {
         ) : (
           <TableContainer>
             <table className="w-full min-w-[1180px] border-collapse">
-              <thead className="bg-slate-50/80">
+              <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
                 <tr>
                   <th className={thClass}>Data</th>
                   <th className={thClass}>Cliente</th>
@@ -398,17 +398,17 @@ export function VendasCafeView() {
                   <th className={thClass}>Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                 {filtradas.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/60">
+                  <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
                     <td className={tdClass}>{formatDate(item.data)}</td>
                     <td className={`${tdClass} font-medium`}>{item.cliente}</td>
-                    <td className={`${tdClass} font-semibold text-slate-900`}>{item.lote}</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{item.lote}</td>
                     <td className={tdClass}><Badge tone="accent">{item.qualidade}</Badge></td>
                     <td className={tdClass}>{item.peso} g</td>
                     <td className={tdClass}>{item.quantidade} un.</td>
                     <td className={tdClass}>{formatBRL(item.valorUnitario)}</td>
-                    <td className={`${tdClass} font-semibold text-slate-900`}>{formatBRL(item.total)}</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{formatBRL(item.total)}</td>
                     <td className={tdClass}>
                       <Badge tone={item.status === "Pago" ? "success" : item.status === "Fiado" ? "warning" : "danger"}>
                         {item.status}
@@ -422,16 +422,16 @@ export function VendasCafeView() {
                           <button
                             type="button"
                             onClick={() => void confirmarBaixa(item.id)}
-                            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50"
+                            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
                             title="Dar baixa como paga"
                           >
                             <Check size={14} /> Baixa
                           </button>
                         )}
-                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar venda de café">
+                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar venda de café">
                           <Pencil size={15} />
                         </button>
-                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir venda de café">
+                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir venda de café">
                           <Trash2 size={15} />
                         </button>
                       </div>

@@ -19,6 +19,7 @@ import {
   thClass,
   useToast,
 } from "@/components/ui";
+import { CotacaoCard } from "@/components/cotacao-card";
 import { downloadCsv } from "@/lib/csv";
 import { csvNumber, formatBRL, formatDecimal } from "@/lib/format";
 import { posicaoPorTipoQueijo, resumoQueijos } from "@/modules/queijos/logic";
@@ -96,6 +97,10 @@ export default function ResumoQueijosPage() {
         }
       />
 
+      <div className="mb-5">
+        <CotacaoCard tipo="leite" />
+      </div>
+
       <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total comprado" value={formatBRL(resumo.totalComprado)} icon={<ShoppingCart size={18} />} />
         <StatCard label="Total vendido" value={formatBRL(resumo.totalVendido)} icon={<TrendingUp size={18} />} />
@@ -137,7 +142,7 @@ export default function ResumoQueijosPage() {
         ) : (
           <TableContainer>
             <table className="w-full min-w-[820px] border-collapse">
-              <thead className="bg-slate-50/80">
+              <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
                 <tr>
                   <th className={thClass}>Tipo de queijo</th>
                   <th className={thClass}>Comprado (kg)</th>
@@ -147,18 +152,18 @@ export default function ResumoQueijosPage() {
                   <th className={thClass}>Valor vendido</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                 {posicao.map((item) => {
                   const critico = item.estoqueKg <= 0;
                   return (
-                    <tr key={item.tipo} className="hover:bg-slate-50/60">
-                      <td className={`${tdClass} font-semibold text-slate-800`}>{item.tipo}</td>
+                    <tr key={item.tipo} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
+                      <td className={`${tdClass} font-semibold text-slate-800 dark:text-neutral-200`}>{item.tipo}</td>
                       <td className={tdClass}>{formatDecimal(item.compradoKg)}</td>
                       <td className={tdClass}>{formatDecimal(item.vendidoKg)}</td>
                       <td className={tdClass}>
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-semibold ${
-                            critico ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"
+                            critico ? "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300" : "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300"
                           }`}
                         >
                           {critico && <AlertTriangle size={13} />}
@@ -166,7 +171,7 @@ export default function ResumoQueijosPage() {
                         </span>
                       </td>
                       <td className={tdClass}>{formatBRL(item.custoMedioKg)}</td>
-                      <td className={`${tdClass} font-semibold text-slate-900`}>{formatBRL(item.valorVendido)}</td>
+                      <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{formatBRL(item.valorVendido)}</td>
                     </tr>
                   );
                 })}
@@ -174,7 +179,7 @@ export default function ResumoQueijosPage() {
             </table>
           </TableContainer>
         )}
-        <div className="border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+        <div className="border-t border-slate-100 dark:border-neutral-800 px-5 py-3 text-xs text-slate-500 dark:text-neutral-400">
           Tipos cadastrados: <Badge tone="accent">{tiposCadastrados.length}</Badge> personalizado(s)
         </div>
       </Card>

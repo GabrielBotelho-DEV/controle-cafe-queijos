@@ -26,12 +26,34 @@
   --accent-soft: 254 243 199;
 }
 
+/* Tema escuro: tons mais claros para manter contraste sobre fundos slate-900/950 */
+.dark {
+  --accent: 100 116 139;
+  --accent-dark: 148 163 184;
+  --accent-alt: 251 191 36;
+  --accent-soft: 30 41 59;
+}
+
+.dark [data-workspace="cafe"] {
+  --accent: 180 83 9;
+  --accent-dark: 217 119 6;
+  --accent-alt: 251 191 36;
+  --accent-soft: 69 38 17;
+}
+
+.dark [data-workspace="queijos"] {
+  --accent: 153 27 27;
+  --accent-dark: 220 38 38;
+  --accent-alt: 245 158 11;
+  --accent-soft: 69 20 20;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  @apply bg-slate-50 text-slate-800 antialiased;
+  @apply bg-slate-50 dark:bg-neutral-950 text-slate-800 dark:text-neutral-200 antialiased;
 }
 
 ::selection {
@@ -49,5 +71,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 8px;
 }
 .overflow-x-auto::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-slate-300;
+  @apply rounded-full bg-slate-300 dark:bg-neutral-700;
 }

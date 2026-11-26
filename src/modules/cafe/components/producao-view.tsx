@@ -247,9 +247,9 @@ export function ProducaoView() {
               <option value="Sim">Sim</option>
             </Select>
           </Field>
-          <div className="flex flex-col justify-end gap-2 rounded-lg bg-slate-50 px-4 py-2.5">
+          <div className="flex flex-col justify-end gap-2 rounded-lg bg-slate-50 dark:bg-neutral-950 px-4 py-2.5">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Custo total</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Custo total</p>
               <p className="text-lg font-bold text-accent-dark">{formatBRL(custoTotal)}</p>
             </div>
             <Button type="submit" disabled={salvando} className="w-full">
@@ -269,7 +269,7 @@ export function ProducaoView() {
 
       <Card>
         <SectionTitle title="Lotes registrados" subtitle={`${filtradas.length} de ${producao.length} registro(s)`} />
-        <div className="grid grid-cols-1 gap-3 border-b border-slate-100 px-4 py-4 sm:grid-cols-2 xl:grid-cols-4 sm:px-5">
+        <div className="grid grid-cols-1 gap-3 border-b border-slate-100 dark:border-neutral-800 px-4 py-4 sm:grid-cols-2 xl:grid-cols-4 sm:px-5">
           <Field label="Lote">
             <Input placeholder="Buscar lote..." value={filtros.lote} onChange={(e) => setFiltros({ ...filtros, lote: e.target.value })} />
           </Field>
@@ -288,9 +288,9 @@ export function ProducaoView() {
             <Input type="date" value={filtros.fim} onChange={(e) => setFiltros({ ...filtros, fim: e.target.value })} />
           </Field>
           <div className="flex items-center justify-between gap-2 sm:col-span-2 xl:col-span-4">
-            <span className="text-xs text-slate-500">
-              Produção filtrada: <strong className="text-slate-800">{filtradas.reduce((sum, item) => sum + item.quantidade, 0)} un.</strong> · Custo:{" "}
-              <strong className="text-slate-800">{formatBRL(filtradas.reduce((sum, item) => sum + item.custoTotal, 0))}</strong>
+            <span className="text-xs text-slate-500 dark:text-neutral-400">
+              Produção filtrada: <strong className="text-slate-800 dark:text-neutral-200">{filtradas.reduce((sum, item) => sum + item.quantidade, 0)} un.</strong> · Custo:{" "}
+              <strong className="text-slate-800 dark:text-neutral-200">{formatBRL(filtradas.reduce((sum, item) => sum + item.custoTotal, 0))}</strong>
             </span>
             <Button variant="ghost" size="sm" onClick={() => setFiltros({ lote: "", qualidade: "", inicio: "", fim: "" })}>
               <X size={14} /> Limpar filtros
@@ -307,7 +307,7 @@ export function ProducaoView() {
         ) : (
           <TableContainer>
             <table className="w-full min-w-[1100px] border-collapse">
-              <thead className="bg-slate-50/80">
+              <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
                 <tr>
                   <th className={thClass}>Fabricação</th>
                   <th className={thClass}>Lote</th>
@@ -323,11 +323,11 @@ export function ProducaoView() {
                   <th className={thClass}>Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                 {filtradas.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/60">
+                  <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
                     <td className={tdClass}>{formatDate(item.data)}</td>
-                    <td className={`${tdClass} font-semibold text-slate-900`}>{item.lote}</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{item.lote}</td>
                     <td className={tdClass}><Badge tone="accent">{item.qualidade}</Badge></td>
                     <td className={tdClass}>{item.peso} g</td>
                     <td className={tdClass}>{item.quantidade} un.</td>
@@ -339,14 +339,14 @@ export function ProducaoView() {
                     <td className={tdClass}>
                       <Badge tone={item.torraPaga ? "success" : "warning"}>{item.torraPaga ? "Sim" : "Não"}</Badge>
                     </td>
-                    <td className={`${tdClass} font-semibold text-slate-900`}>{formatBRL(item.custoTotal)}</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{formatBRL(item.custoTotal)}</td>
                     <td className={`${tdClass} max-w-[220px] truncate`} title={item.observacoes}>{item.observacoes || "—"}</td>
                     <td className={tdClass}>
                       <div className="flex gap-1">
-                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar produção">
+                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar produção">
                           <Pencil size={15} />
                         </button>
-                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir produção">
+                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir produção">
                           <Trash2 size={15} />
                         </button>
                       </div>

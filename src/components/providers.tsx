@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { WorkspaceProvider } from "@/lib/workspace-context";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -23,8 +24,10 @@ export function Providers({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthProvider>
-      <WorkspaceProvider>{children}</WorkspaceProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <WorkspaceProvider>{children}</WorkspaceProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

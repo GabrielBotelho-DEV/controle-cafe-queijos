@@ -221,21 +221,21 @@ export function VendasView() {
             ) : undefined
           }
         />
-        <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
-          <label className="flex w-fit cursor-pointer items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+        <div className="border-b border-slate-100 dark:border-neutral-800 px-4 py-3 sm:px-5">
+          <label className="flex w-fit cursor-pointer items-center gap-3 rounded-lg border border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-950 px-3 py-2">
             <input
               type="checkbox"
               checked={perda}
               onChange={(event) => alternarPerda(event.target.checked)}
               className="h-4 w-4 accent-[rgb(var(--accent))]"
             />
-            <span className="text-xs font-semibold text-slate-700">
+            <span className="text-xs font-semibold text-slate-700 dark:text-neutral-200">
               Registrar perda / consumo / brinde (não entra no faturamento)
             </span>
           </label>
           {perda && (
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Cliente:</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-neutral-400">Cliente:</span>
               {CLIENTES_ESPECIAIS_QUEIJO.map((cliente) => (
                 <button
                   key={cliente}
@@ -244,7 +244,7 @@ export function VendasView() {
                   className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                     form.cliente === cliente
                       ? "bg-accent text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      : "bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 hover:bg-slate-200"
                   }`}
                 >
                   {cliente}
@@ -318,9 +318,9 @@ export function VendasView() {
               <option value="Pendente">Pendente</option>
             </Select>
           </Field>
-          <div className="flex items-end justify-between gap-3 rounded-lg bg-slate-50 px-4 py-3">
+          <div className="flex items-end justify-between gap-3 rounded-lg bg-slate-50 dark:bg-neutral-950 px-4 py-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total da venda</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Total da venda</p>
               <p className="text-lg font-bold text-accent-dark">{formatBRL(totalCalculado)}</p>
             </div>
             <Button type="submit" disabled={salvando}>
@@ -328,7 +328,7 @@ export function VendasView() {
             </Button>
           </div>
           {excedeEstoque && (
-            <p className="flex items-center gap-2 rounded-lg bg-amber-50 px-4 py-2 text-xs font-medium text-amber-800 xl:col-span-4">
+            <p className="flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 px-4 py-2 text-xs font-medium text-amber-800 dark:text-amber-200 xl:col-span-4">
               <AlertTriangle size={15} /> A quantidade informada é maior que o estoque disponível deste tipo ({formatDecimal(estoqueDisponivel)} kg).
             </p>
           )}
@@ -337,7 +337,7 @@ export function VendasView() {
 
       <Card>
         <SectionTitle title="Vendas registradas" subtitle={`${filtradas.length} de ${vendas.length} registro(s)`} />
-        <div className="grid grid-cols-2 gap-3 border-b border-slate-100 px-4 py-4 sm:grid-cols-4 sm:px-5">
+        <div className="grid grid-cols-2 gap-3 border-b border-slate-100 dark:border-neutral-800 px-4 py-4 sm:grid-cols-4 sm:px-5">
           <Field label="Cliente">
             <Select value={filtros.cliente} onChange={(e) => setFiltros({ ...filtros, cliente: e.target.value })}>
               <option value="">Todos</option>
@@ -360,8 +360,8 @@ export function VendasView() {
             <Input type="date" value={filtros.fim} onChange={(e) => setFiltros({ ...filtros, fim: e.target.value })} />
           </Field>
           <div className="col-span-2 flex items-center justify-between gap-2 sm:col-span-4">
-            <span className="text-xs text-slate-500">
-              Total filtrado: <strong className="text-slate-800">{formatBRL(filtradas.reduce((sum, item) => sum + item.total, 0))}</strong>
+            <span className="text-xs text-slate-500 dark:text-neutral-400">
+              Total filtrado: <strong className="text-slate-800 dark:text-neutral-200">{formatBRL(filtradas.reduce((sum, item) => sum + item.total, 0))}</strong>
             </span>
             <Button variant="ghost" size="sm" onClick={() => setFiltros({ cliente: "", situacao: "", inicio: "", fim: "" })}>
               <X size={14} /> Limpar filtros
@@ -378,7 +378,7 @@ export function VendasView() {
         ) : (
           <TableContainer>
             <table className="w-full min-w-[980px] border-collapse">
-              <thead className="bg-slate-50/80">
+              <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
                 <tr>
                   <th className={thClass}>Data</th>
                   <th className={thClass}>Cliente</th>
@@ -391,15 +391,15 @@ export function VendasView() {
                   <th className={thClass}>Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                 {filtradas.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/60">
+                  <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
                     <td className={tdClass}>{formatDate(item.data)}</td>
                     <td className={`${tdClass} font-medium`}>{item.cliente}</td>
                     <td className={tdClass}><Badge tone="accent">{item.tipo}</Badge></td>
                     <td className={tdClass}>{formatDecimal(item.quantidadeKg)} kg</td>
                     <td className={tdClass}>{formatBRL(item.precoPorKg)}</td>
-                    <td className={`${tdClass} font-semibold text-slate-900`}>{formatBRL(item.total)}</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{formatBRL(item.total)}</td>
                     <td className={tdClass}>{item.formaPagamento}</td>
                     <td className={tdClass}>
                       <Badge tone={item.situacao === "Pago" ? "success" : "warning"}>{item.situacao}</Badge>
@@ -410,16 +410,16 @@ export function VendasView() {
                           <button
                             type="button"
                             onClick={() => void confirmarPagamento(item.id)}
-                            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50"
+                            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
                             title="Marcar como pago"
                           >
                             <Check size={14} /> Pago
                           </button>
                         )}
-                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar venda">
+                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar venda">
                           <Pencil size={15} />
                         </button>
-                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir venda">
+                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir venda">
                           <Trash2 size={15} />
                         </button>
                       </div>

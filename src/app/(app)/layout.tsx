@@ -17,7 +17,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   if (loading || !user || !ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-neutral-950 text-sm text-slate-500 dark:text-neutral-400">
         Carregando sistema...
       </div>
     );

@@ -38,6 +38,16 @@ export function resumoCafe(producao: ProducaoCafe[], vendas: VendaCafe[]) {
   };
 }
 
+/** Vendas ainda não pagas (Fiado ou Pendente), com Pendente primeiro e as mais recentes no topo. */
+export function vendasEmAbertoCafe(vendas: VendaCafe[]): VendaCafe[] {
+  return vendas
+    .filter((item) => item.status !== "Pago")
+    .sort((a, b) => {
+      if (a.status !== b.status) return a.status === "Pendente" ? -1 : 1;
+      return b.data.localeCompare(a.data);
+    });
+}
+
 export function estoquePorQualidade(producao: ProducaoCafe[], vendas: VendaCafe[]) {
   return QUALIDADES_CAFE.map((qualidade) => {
     const produzido = producao

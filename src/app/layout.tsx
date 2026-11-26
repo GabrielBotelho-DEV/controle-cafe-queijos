@@ -33,9 +33,14 @@ export const viewport: Viewport = {
   themeColor: "#4A2C2A",
 };
 
+const scriptTema = `(function(){try{var t=localStorage.getItem("sistema-cafe-queijo:tema")||"claro";var e=t==="sistema"?(matchMedia("(prefers-color-scheme: dark)").matches?"escuro":"claro"):t;var r=document.documentElement;r.classList.toggle("dark",e==="escuro");r.dataset.tema=e;r.style.colorScheme=e==="escuro"?"dark":"light";}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: scriptTema }} />
+      </head>
       <body className="font-sans">
         <Providers>{children}</Providers>
       </body>

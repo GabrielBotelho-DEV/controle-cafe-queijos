@@ -221,9 +221,9 @@ export function ComprasView() {
               onChange={(e) => setCampo("custoPorKg", e.target.value)}
             />
           </Field>
-          <div className="flex items-end justify-between gap-3 rounded-lg bg-slate-50 px-4 py-3 xl:col-span-2">
+          <div className="flex items-end justify-between gap-3 rounded-lg bg-slate-50 dark:bg-neutral-950 px-4 py-3 xl:col-span-2">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
                 Total da compra
               </p>
               <p className="text-lg font-bold text-accent-dark">{formatBRL(totalCalculado)}</p>
@@ -237,7 +237,7 @@ export function ComprasView() {
 
       <Card>
         <SectionTitle title="Compras registradas" subtitle={`${filtradas.length} de ${compras.length} registro(s)`} />
-        <div className="grid grid-cols-2 gap-3 border-b border-slate-100 px-4 py-4 sm:grid-cols-4 sm:px-5">
+        <div className="grid grid-cols-2 gap-3 border-b border-slate-100 dark:border-neutral-800 px-4 py-4 sm:grid-cols-4 sm:px-5">
           <Field label="Tipo">
             <Select value={filtros.tipo} onChange={(e) => setFiltros({ ...filtros, tipo: e.target.value })}>
               <option value="">Todos</option>
@@ -261,8 +261,8 @@ export function ComprasView() {
             <Input type="date" value={filtros.fim} onChange={(e) => setFiltros({ ...filtros, fim: e.target.value })} />
           </Field>
           <div className="col-span-2 flex items-center justify-between gap-2 sm:col-span-4">
-            <span className="text-xs text-slate-500">
-              Total filtrado: <strong className="text-slate-800">{formatBRL(filtradas.reduce((sum, item) => sum + item.total, 0))}</strong>
+            <span className="text-xs text-slate-500 dark:text-neutral-400">
+              Total filtrado: <strong className="text-slate-800 dark:text-neutral-200">{formatBRL(filtradas.reduce((sum, item) => sum + item.total, 0))}</strong>
             </span>
             <Button
               variant="ghost"
@@ -283,7 +283,7 @@ export function ComprasView() {
         ) : (
           <TableContainer>
             <table className="w-full min-w-[760px] border-collapse">
-              <thead className="bg-slate-50/80">
+              <thead className="bg-slate-50/80 dark:bg-neutral-800/60">
                 <tr>
                   <th className={thClass}>Data</th>
                   <th className={thClass}>Fornecedor</th>
@@ -294,21 +294,21 @@ export function ComprasView() {
                   <th className={thClass}>Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                 {filtradas.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/60">
+                  <tr key={item.id} className="hover:bg-slate-50/60 dark:hover:bg-neutral-800/60">
                     <td className={tdClass}>{formatDate(item.data)}</td>
                     <td className={`${tdClass} font-medium`}>{item.fornecedor}</td>
                     <td className={tdClass}><Badge tone="accent">{item.tipo}</Badge></td>
                     <td className={tdClass}>{formatDecimal(item.quantidadeKg)} kg</td>
                     <td className={tdClass}>{formatBRL(item.custoPorKg)}</td>
-                    <td className={`${tdClass} font-semibold text-slate-900`}>{formatBRL(item.total)}</td>
+                    <td className={`${tdClass} font-semibold text-slate-900 dark:text-neutral-100`}>{formatBRL(item.total)}</td>
                     <td className={tdClass}>
                       <div className="flex gap-1">
-                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar compra">
+                        <button type="button" onClick={() => iniciarEdicao(item)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-accent-soft hover:text-accent-dark" title="Editar" aria-label="Editar compra">
                           <Pencil size={15} />
                         </button>
-                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir compra">
+                        <button type="button" onClick={() => setExcluirId(item.id)} className="rounded p-1.5 text-slate-500 dark:text-neutral-400 hover:bg-red-50 hover:text-red-700" title="Excluir" aria-label="Excluir compra">
                           <Trash2 size={15} />
                         </button>
                       </div>

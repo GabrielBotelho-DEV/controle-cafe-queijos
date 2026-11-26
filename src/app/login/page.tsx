@@ -9,6 +9,7 @@ import {
   Coffee,
   Eye,
   EyeOff,
+  Info,
   KeyRound,
   Loader2,
   LockKeyhole,
@@ -21,6 +22,24 @@ import { useWorkspace, WORKSPACE_HOME } from "@/lib/workspace-context";
 import { Button, Field, Input } from "@/components/ui";
 
 type Captcha = { token: string; pergunta: string };
+
+const CHAVE_CREDENCIAIS = "cafe-queijo:credenciais";
+
+type Credenciais = { email: string; senha: string };
+
+function lerCredenciais(): Credenciais | null {
+  try {
+    const bruto = window.localStorage.getItem(CHAVE_CREDENCIAIS);
+    if (!bruto) return null;
+    const dados = JSON.parse(bruto) as Partial<Credenciais>;
+    if (typeof dados.email === "string" && typeof dados.senha === "string") {
+      return { email: dados.email, senha: dados.senha };
+    }
+  } catch {
+    // Descarta dados corrompidos sem quebrar a tela de login.
+  }
+  return null;
+}
 
 function CheeseIcon({ className }: { className?: string }) {
   return (
@@ -40,6 +59,8 @@ export default function LoginPage() {
   const { workspace, ready } = useWorkspace();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [salvarSenha, setSalvarSenha] = useState(false);
+  const [credenciaisCarregadas, setCredenciaisCarregadas] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [captcha, setCaptcha] = useState<Captcha | null>(null);
   const [resposta, setResposta] = useState("");
@@ -71,6 +92,16 @@ export default function LoginPage() {
     void carregarCaptcha();
   }, [carregarCaptcha]);
 
+  useEffect(() => {
+    const credenciais = lerCredenciais();
+    if (credenciais) {
+      setEmail(credenciais.email);
+      setSenha(credenciais.senha);
+      setSalvarSenha(true);
+    }
+    setCredenciaisCarregadas(true);
+  }, []);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErro("");
@@ -100,6 +131,15 @@ export default function LoginPage() {
         return;
       }
       await entrar(email, senha);
+
+      if (salvarSenha) {
+        window.localStorage.setItem(
+          CHAVE_CREDENCIAIS,
+          JSON.stringify({ email, senha } satisfies Credenciais),
+        );
+      } else {
+        window.localStorage.removeItem(CHAVE_CREDENCIAIS);
+      }
     } catch (error) {
       setErro(error instanceof Error ? erroFirebase(error.message) : "Não foi possível entrar.");
     } finally {
@@ -234,6 +274,26 @@ export default function LoginPage() {
                 </div>
               </Field>
 
+              <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
+                <input
+                  type="checkbox"
+                  checked={salvarSenha}
+                  onChange={(event) => {
+                    const marcado = event.target.checked;
+                    setSalvarSenha(marcado);
+                    if (!marcado) window.localStorage.removeItem(CHAVE_CREDENCIAIS);
+                  }}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-[#7F1D1D]"
+                />
+                <span className="text-xs leading-relaxed text-slate-600">
+                  <span className="font-semibold text-slate-700">Salvar senha neste dispositivo</span>
+                  <span className="mt-0.5 flex items-start gap-1 text-[11px] text-slate-400">
+                    <Info size={12} className="mt-0.5 shrink-0" />
+                    Fica salva sem criptografia neste navegador. Evite em computadores compartilhados.
+                  </span>
+                </span>
+              </label>
+
               <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -280,7 +340,11 @@ export default function LoginPage() {
                 </p>
               )}
 
-              <Button type="submit" disabled={enviando || carregandoCaptcha} className="w-full">
+              <Button
+                type="submit"
+                disabled={enviando || carregandoCaptcha || !credenciaisCarregadas}
+                className="w-full"
+              >
                 {enviando ? (
                   <><Loader2 size={16} className="animate-spin" /> Entrando...</>
                 ) : (

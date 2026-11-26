@@ -43,7 +43,7 @@ import type {
 type FormState = {
   data: string;
   cliente: string;
-  chaveLote: string;
+  lote: string;
   qualidade: QualidadeCafe;
   peso: string;
   quantidade: string;
@@ -56,7 +56,7 @@ type FormState = {
 const formVazio = (): FormState => ({
   data: todayISO(),
   cliente: "",
-  chaveLote: "",
+  lote: "",
   qualidade: "Gourmet",
   peso: "250",
   quantidade: "",
@@ -84,6 +84,13 @@ export function VendasCafeView() {
   });
 
   const lotes = useMemo(() => saldoPorLote(producao, vendas), [producao, vendas]);
+  const numerosLote = useMemo(
+    () =>
+      [...new Set(lotes.filter((lote) => lote.saldo > 0).map((lote) => lote.lote))].sort((a, b) =>
+        a.localeCompare(b, "pt-BR"),
+      ),
+    [lotes],
+  );
   const clientes = useMemo(
     () => [...new Set(vendas.map((item) => item.cliente))].filter(Boolean).sort(),
     [vendas],
@@ -93,39 +100,25 @@ export function VendasCafeView() {
   const quantidade = parseDecimal(form.quantidade);
   const valorUnitario = parseDecimal(form.valorUnitario);
   const totalCalculado = calcularTotalVendaCafe(quantidade, valorUnitario);
-  const loteSelecionado = lotes.find((item) => item.chave === form.chaveLote);
+  const loteDigitado = form.lote.trim().toUpperCase();
   const vendaEditada = vendas.find((item) => item.id === editandoId);
   const saldoDisponivel =
-    (loteSelecionado?.saldo ?? 0) +
-    (vendaEditada && vendaEditada.lote === loteSelecionado?.lote &&
-    vendaEditada.qualidade === loteSelecionado?.qualidade &&
-    vendaEditada.peso === loteSelecionado?.peso
-      ? vendaEditada.quantidade
-      : 0);
+    lotes
+      .filter((item) => item.lote === loteDigitado)
+      .reduce((sum, item) => sum + item.saldo, 0) +
+    (vendaEditada && vendaEditada.lote === loteDigitado ? vendaEditada.quantidade : 0);
   const excedeSaldo = quantidade > saldoDisponivel;
 
   function setCampo<K extends keyof FormState>(campo: K, valor: FormState[K]) {
     setForm((anterior) => ({ ...anterior, [campo]: valor }));
   }
 
-  function selecionarLote(chave: string) {
-    const lote = lotes.find((item) => item.chave === chave);
-    setForm((anterior) => ({
-      ...anterior,
-      chaveLote: chave,
-      ...(lote ? { qualidade: lote.qualidade, peso: String(lote.peso) } : {}),
-    }));
-  }
-
   function iniciarEdicao(item: VendaCafe) {
-    const chave = `${item.lote}|${item.qualidade}|${item.peso}`;
     setEditandoId(item.id);
     setForm({
       data: item.data,
       cliente: item.cliente,
-      chaveLote: lotes.some((lote) => lote.chave === chave)
-        ? chave
-        : `${item.lote}|${item.qualidade}|${item.peso}`,
+      lote: item.lote,
       qualidade: item.qualidade,
       peso: String(item.peso),
       quantidade: String(item.quantidade),
@@ -144,23 +137,19 @@ export function VendasCafeView() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!form.data || !form.cliente.trim() || quantidade <= 0 || valorUnitario < 0) {
-      notify("Preencha data, cliente e uma quantidade válida.", "error");
+    if (!form.data || !loteDigitado || !form.cliente.trim() || quantidade <= 0 || valorUnitario < 0) {
+      notify("Preencha data, lote, cliente e uma quantidade válida.", "error");
       return;
     }
-    const [loteTexto, qualidade, pesoTexto] = form.chaveLote.split("|");
-    const lote = lotes.find((item) => item.chave === form.chaveLote);
-    const peso = Number(pesoTexto || form.peso) as PesoCafe;
+    const peso = Number(form.peso) as PesoCafe;
     setSalvando(true);
     try {
       await salvarVenda(
         {
           data: form.data,
           cliente: form.cliente.trim().toUpperCase(),
-          lote: lote?.lote ?? loteTexto,
-          qualidade: (QUALIDADES_CAFE.includes(qualidade as QualidadeCafe)
-            ? qualidade
-            : form.qualidade) as QualidadeCafe,
+          lote: loteDigitado,
+          qualidade: form.qualidade,
           peso: PESOS_CAFE.includes(peso) ? peso : 250,
           quantidade,
           valorUnitario: round2(valorUnitario),
@@ -225,18 +214,11 @@ export function VendasCafeView() {
     notify(`${filtradas.length} venda(s) exportada(s) em CSV.`);
   }
 
-  const opcoesLotes = lotes
-    .filter((lote) => lote.saldo > 0 || lote.chave === form.chaveLote)
-    .map(
-      (lote) =>
-        `${lote.chave}|${lote.lote} · ${lote.qualidade} · ${lote.peso}g · ${lote.saldo} un. disponíveis`,
-    );
-
   return (
     <>
       <PageHeader
         title="Controle de vendas — Café"
-        description="Vendas por lote, qualidade e peso, com saldo e status financeiro."
+        description="Vendas com Nº do Lote digitável, qualidade, peso, saldo e status financeiro."
         actions={
           <Button variant="secondary" onClick={exportar} disabled={!filtradas.length}>
             <Download size={16} /> Exportar CSV
@@ -247,7 +229,7 @@ export function VendasCafeView() {
       <Card id="form-venda-cafe" className="mb-5">
         <SectionTitle
           title={editandoId ? "Editar venda" : "Nova venda"}
-          subtitle={editandoId ? "Altere os campos e salve as alterações." : "Selecione um lote com saldo disponível."}
+          subtitle={editandoId ? "Altere os campos e salve as alterações." : "Digite o Nº do Lote com saldo disponível."}
           actions={
             editandoId ? (
               <Button variant="ghost" size="sm" onClick={cancelarEdicao}>
@@ -270,18 +252,15 @@ export function VendasCafeView() {
               onChange={(e) => setCampo("cliente", e.target.value)}
             />
           </Field>
-          <Field label="Lote / qualidade / peso" className="sm:col-span-2 xl:col-span-2" hint="A qualidade e o peso são preenchidos automaticamente">
-            <Select value={form.chaveLote} onChange={(e) => selecionarLote(e.target.value)} required>
-              <option value="">Selecione um lote com saldo</option>
-              {opcoesLotes.map((opcao) => {
-                const chave = opcao.split("|")[0];
-                return (
-                  <option key={chave} value={chave}>
-                    {opcao.split("|")[1]}
-                  </option>
-                );
-              })}
-            </Select>
+          <Field label="Nº do Lote" className="sm:col-span-2 xl:col-span-2" hint="Digite o número do lote com saldo disponível">
+            <AutocompleteInput
+              required
+              listId="lotes-cafe"
+              options={numerosLote}
+              placeholder="Ex.: 25014"
+              value={form.lote}
+              onChange={(e) => setCampo("lote", e.target.value)}
+            />
           </Field>
           <Field label="Qualidade">
             <Select value={form.qualidade} onChange={(e) => setCampo("qualidade", e.target.value as QualidadeCafe)}>
